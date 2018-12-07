@@ -40840,6 +40840,27 @@ var global = arguments[3];
 
 })));
 
+},{}],"models/note.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.BeatNote = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var BeatNote = function BeatNote() {
+  _classCallCheck(this, BeatNote);
+
+  this._time = 0;
+  this._lineIndex = 0;
+  this._lineLayer = 0;
+  this._type = 0;
+  this._cutDirection = 8;
+};
+
+exports.BeatNote = BeatNote;
 },{}],"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
@@ -40919,6 +40940,8 @@ var _angular = _interopRequireDefault(require("angular"));
 
 var _moment = _interopRequireDefault(require("moment"));
 
+var _note = require("./models/note");
+
 require("./sass/styles.scss");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -40928,15 +40951,68 @@ window.moment = _moment.default;
 
 var app = _angular.default.module('bstm', []);
 
-app.controller('MainController', ['$scope', function ($scope) {
+app.controller('MainController', ['$interval', function ($interval) {
   var vm = this;
+  vm.bpm = 152;
+  vm.precision = .125;
+  vm.notes = [];
 
   vm.onKeypress = function (e) {
-    vm.text = e.which;
-    vm.time = (0, _moment.default)().format('x');
+    if (e.which === 98) {
+      if (!!vm.startTime) {
+        vm.notes.push({
+          which: e.which,
+          time: Date.now()
+        });
+      } else {
+        vm.startTime = Date.now();
+      }
+    }
+  };
+
+  vm.startListening = function () {// vm.startTime = Date.now()
+    // vm.lastTime = Date.now()
+    // const millisecondsBetweenBeats = Math.round(60000 / vm.bpm)
+    // vm.reset = $interval(() => {
+    //   console.log(Date.now() - vm.lastTime)
+    //   vm.lastTime = Date.now()
+    //   // console.log(vm.lastTime - vm.startTime)
+    // }, millisecondsBetweenBeats)
+  };
+
+  vm.stopListener = function () {
+    // $interval.cancel(vm.reset)
+    vm.convertNotes(vm.notes);
+    vm.startTime = null;
+    console.log(vm.notes);
+    vm.notesJson = JSON.stringify(vm.notes);
+    vm.notes = [];
+  };
+
+  vm.convertNotes = function (notes) {
+    var millisecondsBetweenBeats = Math.round(60000 / vm.bpm);
+    var millisecondsBetweenQuantums = Math.round(60000 * vm.precision / vm.bpm);
+    vm.notes = notes.map(function (note) {
+      var time = note.time - vm.startTime;
+      var mod = note.time % millisecondsBetweenQuantums;
+
+      if (mod !== 0) {
+        time = time - mod;
+
+        if (mod > millisecondsBetweenQuantums / 2) {
+          time = time + millisecondsBetweenQuantums;
+        }
+      }
+
+      var beat = Math.floor(time / millisecondsBetweenBeats);
+      var part = Math.floor(time % millisecondsBetweenBeats / millisecondsBetweenQuantums);
+      var newNote = new _note.BeatNote();
+      newNote._time = beat + part * vm.precision;
+      return newNote;
+    });
   };
 }]);
-},{"angular":"../node_modules/angular/index.js","moment":"../node_modules/moment/moment.js","./sass/styles.scss":"sass/styles.scss"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"angular":"../node_modules/angular/index.js","moment":"../node_modules/moment/moment.js","./models/note":"models/note.js","./sass/styles.scss":"sass/styles.scss"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
