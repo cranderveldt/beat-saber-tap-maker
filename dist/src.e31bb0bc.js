@@ -40954,7 +40954,7 @@ var app = _angular.default.module('bstm', []);
 app.controller('MainController', ['$interval', function ($interval) {
   var vm = this;
   vm.bpm = 152;
-  vm.precision = .125;
+  vm.precision = .25;
   vm.notes = [];
 
   vm.onKeypress = function (e) {
@@ -40992,7 +40992,7 @@ app.controller('MainController', ['$interval', function ($interval) {
   vm.convertNotes = function (notes) {
     var millisecondsBetweenBeats = Math.round(60000 / vm.bpm);
     var millisecondsBetweenQuantums = Math.round(60000 * vm.precision / vm.bpm);
-    vm.notes = notes.map(function (note) {
+    vm.notes = notes.map(function (note, index) {
       var time = note.time - vm.startTime;
       var mod = note.time % millisecondsBetweenQuantums;
 
@@ -41008,6 +41008,8 @@ app.controller('MainController', ['$interval', function ($interval) {
       var part = Math.floor(time % millisecondsBetweenBeats / millisecondsBetweenQuantums);
       var newNote = new _note.BeatNote();
       newNote._time = beat + part * vm.precision;
+      newNote._type = index % 2;
+      newNote._lineIndex = index % 2 * 4;
       return newNote;
     });
   };
@@ -41039,7 +41041,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57107" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56972" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

@@ -13,7 +13,7 @@ app.controller('MainController', [
   function ($interval) {
     const vm = this
     vm.bpm = 152
-    vm.precision = .125
+    vm.precision = .25
     vm.notes = []
 
     vm.onKeypress = e => {
@@ -52,7 +52,7 @@ app.controller('MainController', [
     vm.convertNotes = notes => {
       const millisecondsBetweenBeats = Math.round(60000 / vm.bpm)
       const millisecondsBetweenQuantums = Math.round(60000 * vm.precision / vm.bpm)
-      vm.notes = notes.map(note => {
+      vm.notes = notes.map((note, index) => {
         let time = note.time - vm.startTime
         const mod = note.time % millisecondsBetweenQuantums
         if (mod !== 0) {
@@ -65,6 +65,8 @@ app.controller('MainController', [
         const part = Math.floor((time % millisecondsBetweenBeats) / millisecondsBetweenQuantums)
         const newNote = new BeatNote
         newNote._time = beat + (part * vm.precision)
+        newNote._type = index % 2
+        newNote._lineIndex = (index % 2) * 4
         return newNote
       })
     }
