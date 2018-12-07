@@ -1,0 +1,32 @@
+{
+  "name": "beat-saber-tap-maker",
+  "version": "1.0.0",
+  "description": "Easy-to-use web-based Beat Saber level creator that quantizes key taps into beatfiles",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "parcel src/index.html",
+    "build": "parcel build src/index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cranderveldt/beat-saber-tap-maker.git"
+  },
+  "author": "cranderveldt",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cranderveldt/beat-saber-tap-maker/issues"
+  },
+  "homepage": "https://github.com/cranderveldt/beat-saber-tap-maker#readme",
+  "dependencies": {
+    "angular": "^1.7.5",
+    "moment": "^2.22.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.2.0",
+    "@babel/preset-env": "^7.2.0",
+    "babel-preset-env": "^1.7.0",
+    "node-sass": "^4.10.0",
+    "parcel-bundler": "^1.10.3"
+  }
+}

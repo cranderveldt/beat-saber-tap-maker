@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="bstm">
+<head>
+  <meta charset="UTF-8">
+  <title>Beat Saber Tap Maker</title>
+  <script src="./index.js"></script>
+</head>
+
+<body ng-controller="MainController as vm" ng-keypress="vm.onKeypress($event)">
+  <div ng-bind="vm.text"></div>
+  <div ng-bind="vm.time"></div>
+</body>
+</html>
