@@ -7,7 +7,12 @@
 <link rel="stylesheet" href="/src.e31bb0bc.css"></head>
 
 <body ng-controller="MainController as vm" ng-keypress="vm.onKeypress($event)">
-  <div ng-bind="vm.text"></div>
-  <div ng-bind="vm.time"></div>
+  <div class="container">
+    <h1 class="h24 bm-16">Beat Saber Tap Maker</h1>
+    <button ng-click="vm.startListening()">Start</button>
+    <button ng-click="vm.stopListener()">Stop</button>
+    <input type="number" ng-model="vm.bpm">
+    <textarea ng-model="vm.notesJson"></textarea>
+  </div>
 </body>
 </html>
