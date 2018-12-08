@@ -19,8 +19,7 @@
   },
   "homepage": "https://github.com/cranderveldt/beat-saber-tap-maker#readme",
   "dependencies": {
-    "angular": "^1.7.5",
-    "moment": "^2.22.2"
+    "angular": "^1.7.5"
   },
   "devDependencies": {
     "@babel/core": "^7.2.0",

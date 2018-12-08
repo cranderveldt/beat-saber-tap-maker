@@ -46,6 +46,9 @@ table {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
+*, *:after, *:before {
+  box-sizing: border-box;
+}
 
 // My styles
 
@@ -62,6 +65,7 @@ body {
   margin: auto;
   background: white;
   padding: 16px;
+  min-height: 100vh;
 }
 
 .h24 {

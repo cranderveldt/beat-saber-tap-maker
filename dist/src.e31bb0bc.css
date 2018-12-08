@@ -45,6 +45,9 @@ table {
   border-collapse: collapse;
   border-spacing: 0; }
 
+*, *:after, *:before {
+  box-sizing: border-box; }
+
 body {
   background: #eee;
   font-size: 16px;
@@ -54,7 +57,8 @@ body {
   max-width: 640px;
   margin: auto;
   background: white;
-  padding: 16px; }
+  padding: 16px;
+  min-height: 100vh; }
 
 .h24 {
   font-size: 24px;

@@ -1,7 +1,5 @@
 import angular from 'angular'
 window.angular = angular
-import moment from 'moment'
-window.moment = moment
 
 import { BeatNote } from './models/note'
 
@@ -9,39 +7,35 @@ import './sass/styles.scss'
 
 const app = angular.module('bstm', []);
 app.controller('MainController', [
-  '$interval',
-  function ($interval) {
+  '$scope',
+  function ($scope) {
     const vm = this
+    vm.start = false
     vm.bpm = 152
     vm.precision = .25
     vm.notes = []
 
     vm.onKeypress = e => {
+      console.log(e.which)
+      if (!vm.start) {
+        return
+      }
       if (e.which === 98) {
-        if (!!vm.startTime) {
-          vm.notes.push({
-            which: e.which,
-            time: Date.now(),
-          })
-        } else {
-          vm.startTime = Date.now()
-        }
+        vm.notes.push({
+          which: e.which,
+          time: Date.now(),
+        })
       }
     }
 
     vm.startListening = () => {
-      // vm.startTime = Date.now()
-      // vm.lastTime = Date.now()
-      // const millisecondsBetweenBeats = Math.round(60000 / vm.bpm)
-      // vm.reset = $interval(() => {
-      //   console.log(Date.now() - vm.lastTime)
-      //   vm.lastTime = Date.now()
-      //   // console.log(vm.lastTime - vm.startTime)
-      // }, millisecondsBetweenBeats)
+      vm.start = true
+      $scope.audioPlayer[0].play();
+      vm.startTime = Date.now()
     }
 
     vm.stopListener = () => {
-      // $interval.cancel(vm.reset)
+      vm.start = false
       vm.convertNotes(vm.notes)
       vm.startTime = null
       console.log(vm.notes)
@@ -70,5 +64,36 @@ app.controller('MainController', [
         return newNote
       })
     }
+
+    $scope.onAudioChange = src => {
+      $scope.audioPlayer[0].src = src
+    };
   }
 ])
+
+angular.module('bstm').directive('bstmAudio', [
+  function () {
+    return {
+      restrict: 'A',
+      link: ($scope, element, attrs) => {
+        element.on('change', function () {
+          if (this.files[0]) {
+            const file = URL.createObjectURL(this.files[0]);
+            $scope.onAudioChange(file)
+          }
+        })
+      }
+    };
+  }
+]);
+
+angular.module('bstm').directive('bstmAudioPlayer', [
+  function () {
+    return {
+      restrict: 'A',
+      link: ($scope, element, attrs) => {
+        $scope.audioPlayer = element
+      }
+    };
+  }
+]);
