@@ -36538,8 +36538,6 @@ app.controller('MainController', ['$scope', '$q', '$timeout', function ($scope, 
   };
 
   vm.onKeypress = function (e) {
-    console.log(e.which);
-
     if (!vm.start) {
       return;
     }
@@ -36564,9 +36562,9 @@ app.controller('MainController', ['$scope', '$q', '$timeout', function ($scope, 
 
   vm.stopListener = function () {
     vm.start = false;
+    $scope.audioPlayer[0].pause();
     vm.convertNotes(vm.notes);
     vm.startTime = null;
-    console.log(vm.notes);
     songShell._beatsPerMinute = vm.bpm;
     songShell._notes = vm.notes;
     vm.notesJson = JSON.stringify(songShell);
@@ -36631,7 +36629,6 @@ _angular.default.module('bstm').directive('bstmAudio', [function () {
     link: function link($scope, element, attrs) {
       element.on('change', function () {
         if (this.files[0]) {
-          console.log($scope.audioSrcName);
           var file = URL.createObjectURL(this.files[0]);
           $scope.onAudioChange(file, this.files[0].name);
         }

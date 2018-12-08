@@ -44,7 +44,6 @@ app.controller('MainController', [
     const songShell = { "_version": "1.0.0", "_beatsPerMinute": 120, "_beatsPerBar": 16, "_noteJumpSpeed": 10, "_shuffle": 0, "_shufflePeriod": 0.5, "_events": [], "_notes": [], "_obstacles": [] }
 
     vm.onKeypress = e => {
-      console.log(e.which)
       if (!vm.start) {
         return
       }
@@ -66,9 +65,9 @@ app.controller('MainController', [
 
     vm.stopListener = () => {
       vm.start = false
+      $scope.audioPlayer[0].pause();
       vm.convertNotes(vm.notes)
       vm.startTime = null
-      console.log(vm.notes)
       songShell._beatsPerMinute = vm.bpm
       songShell._notes = vm.notes
       vm.notesJson = JSON.stringify(songShell)
@@ -129,7 +128,6 @@ angular.module('bstm').directive('bstmAudio', [
       link: ($scope, element, attrs) => {
         element.on('change', function () {
           if (this.files[0]) {
-            console.log($scope.audioSrcName)
             const file = URL.createObjectURL(this.files[0]);
             $scope.onAudioChange(file, this.files[0].name)
           }
