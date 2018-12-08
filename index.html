@@ -12,7 +12,11 @@
     <button ng-click="vm.startListening()">Start</button>
     <button ng-click="vm.stopListener()">Stop</button>
     <input type="number" ng-model="vm.bpm">
-    <textarea ng-model="vm.notesJson"></textarea>
+    <input ng-model="vm.audio" bstm-audio="" type="file" accept="audio/*">
+    <audio bstm-audio-player=""></audio>
+    <div>
+      <textarea ng-model="vm.notesJson"></textarea>
+    </div>
   </div>
 </body>
 </html>
