@@ -19,10 +19,16 @@
       </div>
     </div>
 
-    <div class="bm-16">
-      <input id="audio-input" ng-model="vm.audio" bstm-audio="" type="file" accept="audio/*">
-      <label for="audio-input" ng-bind="vm.audioSrcName"></label>
-      <audio bstm-audio-player=""></audio>
+    <div class="bm-16 flex-row">
+      <div class="flex-col-6">
+        <input id="audio-input" bstm-audio="" type="file" accept="audio/*">
+        <label for="audio-input" ng-bind="vm.audioSrcName"></label>
+        <audio bstm-audio-player=""></audio>
+      </div>
+      <div class="flex-col-6">
+        <input id="beatfile-input" bstm-beatfile="" type="file" accept="application/json">
+        <label for="beatfile-input" ng-bind="vm.beatfileName"></label>
+      </div>
     </div>
 
     <div class="bm-16">
@@ -36,14 +42,14 @@
 
     <div class="bm-16 flex-row flex-wrap" ng-if="vm.start">
       <div class="flex-col-3" ng-repeat="item in vm.legalKeys">
-        <div class="note-indicator" ng-class="item.css">
+        <button class="note-indicator" ng-click="vm.recordNote(item.which)" ng-class="item.css">
           <span ng-bind="item.key"></span>
-        </div>
+        </button>
       </div>
     </div>
 
     <div class="bm-16">
-      <textarea class="form-control" ng-model="vm.notesJson"></textarea>
+      <textarea class="form-control" placeholder="Exported beatfile JSON will go here" ng-model="vm.notesJson"></textarea>
     </div>
   </div>
 </body>

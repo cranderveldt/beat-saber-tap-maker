@@ -78,7 +78,15 @@ body {
 
 .note-indicator {
   height: 100px;
+  width: 100%;
+  border: 0;
+  display: block;
+  box-shadow: none;
+  -webkit-appearance: none;
+  cursor: pointer;
   background: gray;
+  font-size: 16px;
+  font-weight: 700;
   margin-bottom: 16px;
   text-transform: uppercase;
   display: flex;
@@ -140,7 +148,7 @@ input[type=file] {
     display: inline-block; }
   input[type=file]:focus + label,
   input[type=file] + label:hover {
-    background-color: red; }
+    background-color: gray; }
 
 .flex-row {
   display: flex;

@@ -36351,6 +36351,33 @@ var BeatNote = function BeatNote() {
 };
 
 exports.BeatNote = BeatNote;
+},{}],"models/song.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.BeatSong = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var BeatSong = function BeatSong() {
+  var init = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+  _classCallCheck(this, BeatSong);
+
+  this._version = init._version || "1.0.0";
+  this._beatsPerMinute = init._beatsPerMinute || 120;
+  this._beatsPerBar = init._beatsPerBar || 16;
+  this._noteJumpSpeed = init._noteJumpSpeed || 10;
+  this._shuffle = init._shuffle || 0;
+  this._shufflePeriod = init._shufflePeriod || 0.5;
+  this._events = init._events || [];
+  this._notes = init._notes || [];
+  this._obstacles = init._obstacles || [];
+};
+
+exports.BeatSong = BeatSong;
 },{}],"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
@@ -36430,6 +36457,8 @@ var _angular = _interopRequireDefault(require("angular"));
 
 var _note = require("./models/note");
 
+var _song = require("./models/song");
+
 require("./sass/styles.scss");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -36441,6 +36470,7 @@ var app = _angular.default.module('bstm', []);
 app.controller('MainController', ['$scope', '$q', '$timeout', function ($scope, $q, $timeout) {
   var vm = this;
   vm.audioSrcName = 'Choose a Song';
+  vm.beatfileName = 'Choose a Beatfile';
   vm.start = false;
   vm.bpm = 152;
   vm.precision = .25;
@@ -36460,6 +36490,9 @@ app.controller('MainController', ['$scope', '$q', '$timeout', function ($scope, 
     value: .0625,
     label: 'Sixteenth Notes'
   }];
+  vm.beatfile = new _song.BeatSong({
+    _beatsPerMinute: vm.bpm
+  });
   vm.notes = [];
   vm.legalKeys = [{
     x: 0,
@@ -36525,17 +36558,6 @@ app.controller('MainController', ['$scope', '$q', '$timeout', function ($scope, 
   var legalKeysWhich = vm.legalKeys.map(function (x) {
     return x.which;
   });
-  var songShell = {
-    "_version": "1.0.0",
-    "_beatsPerMinute": 120,
-    "_beatsPerBar": 16,
-    "_noteJumpSpeed": 10,
-    "_shuffle": 0,
-    "_shufflePeriod": 0.5,
-    "_events": [],
-    "_notes": [],
-    "_obstacles": []
-  };
 
   vm.onKeypress = function (e) {
     if (!vm.start) {
@@ -36543,32 +36565,63 @@ app.controller('MainController', ['$scope', '$q', '$timeout', function ($scope, 
     }
 
     if (legalKeysWhich.includes(e.which)) {
-      var item = vm.legalKeys.filter(function (x) {
-        return x.which === e.which;
-      })[0];
-      vm.noteAnimation(item);
-      vm.notes.push({
-        position: item,
-        time: Date.now()
-      });
+      vm.recordNote(e.which);
     }
+  };
+
+  vm.recordNote = function (which) {
+    var item = vm.legalKeys.filter(function (x) {
+      return x.which === which;
+    })[0];
+    vm.noteAnimation(item);
+    vm.notes.push({
+      position: item,
+      time: Date.now()
+    });
   };
 
   vm.startListening = function () {
     vm.start = true;
-    $scope.audioPlayer[0].play();
+
+    if ($scope.audioPlayer[0].src) {
+      $scope.audioPlayer[0].play();
+    }
+
     vm.startTime = Date.now();
   };
 
   vm.stopListener = function () {
     vm.start = false;
-    $scope.audioPlayer[0].pause();
+
+    if ($scope.audioPlayer[0].src) {
+      $scope.audioPlayer[0].pause();
+    }
+
     vm.convertNotes(vm.notes);
     vm.startTime = null;
-    songShell._beatsPerMinute = vm.bpm;
-    songShell._notes = vm.notes;
-    vm.notesJson = JSON.stringify(songShell);
+    vm.beatfile._beatsPerMinute = vm.bpm;
+    vm.combineNotes(vm.notes);
+    vm.notesJson = JSON.stringify(vm.beatfile);
+  };
+
+  vm.combineNotes = function (notes) {
+    notes.forEach(function (note) {
+      return vm.beatfile._notes.push(note);
+    });
     vm.notes = [];
+
+    vm.beatfile._notes.sort(function (a, b) {
+      return a._time - b._time;
+    });
+
+    vm.beatfile._notes.forEach(function (note) {
+      var results = vm.beatfile._notes.filter(function (n) {
+        return n._time === note._time && n._lineIndex === note._lineIndex && n._lineLayer === note._lineLayer;
+      });
+
+      if (results.length > 1) {// todo: remove all results except one
+      }
+    });
   };
 
   vm.noteAnimation = function (item) {
@@ -36621,6 +36674,11 @@ app.controller('MainController', ['$scope', '$q', '$timeout', function ($scope, 
     vm.audioSrcName = name;
     $scope.$digest();
   };
+
+  $scope.onBeatfileChange = function (json) {
+    vm.beatfile = new _song.BeatSong(json);
+    $scope.$digest();
+  };
 }]);
 
 _angular.default.module('bstm').directive('bstmAudio', [function () {
@@ -36645,7 +36703,23 @@ _angular.default.module('bstm').directive('bstmAudioPlayer', [function () {
     }
   };
 }]);
-},{"angular":"../node_modules/angular/index.js","./models/note":"models/note.js","./sass/styles.scss":"sass/styles.scss"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+
+_angular.default.module('bstm').directive('bstmBeatfile', ['$http', function ($http) {
+  return {
+    restrict: 'A',
+    link: function link($scope, element, attrs) {
+      element.on('change', function () {
+        if (this.files[0]) {
+          var file = URL.createObjectURL(this.files[0]);
+          $http.get(file).then(function (response) {
+            return $scope.onBeatfileChange(response.data);
+          });
+        }
+      });
+    }
+  };
+}]);
+},{"angular":"../node_modules/angular/index.js","./models/note":"models/note.js","./models/song":"models/song.js","./sass/styles.scss":"sass/styles.scss"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -36672,7 +36746,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49639" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49334" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

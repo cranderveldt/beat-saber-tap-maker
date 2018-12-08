@@ -2,6 +2,7 @@ import angular from 'angular'
 window.angular = angular
 
 import { BeatNote } from './models/note'
+import { BeatSong } from './models/song'
 
 import './sass/styles.scss'
 
@@ -13,6 +14,7 @@ app.controller('MainController', [
   function ($scope, $q, $timeout) {
     const vm = this
     vm.audioSrcName = 'Choose a Song'
+    vm.beatfileName = 'Choose a Beatfile'
     vm.start = false
     vm.bpm = 152
     vm.precision = .25
@@ -23,6 +25,7 @@ app.controller('MainController', [
       { value: .125, label: 'Eighth Notes' },
       { value: .0625, label: 'Sixteenth Notes' },
     ]
+    vm.beatfile = new BeatSong({ _beatsPerMinute: vm.bpm })
     vm.notes = []
     vm.legalKeys = [
       { x: 0, y: 2, key: 'r', which: 114 },
@@ -41,37 +44,55 @@ app.controller('MainController', [
 
     const legalKeysWhich = vm.legalKeys.map(x => x.which)
 
-    const songShell = { "_version": "1.0.0", "_beatsPerMinute": 120, "_beatsPerBar": 16, "_noteJumpSpeed": 10, "_shuffle": 0, "_shufflePeriod": 0.5, "_events": [], "_notes": [], "_obstacles": [] }
 
     vm.onKeypress = e => {
       if (!vm.start) {
         return
       }
       if (legalKeysWhich.includes(e.which)) {
-        let item = vm.legalKeys.filter(x => x.which === e.which)[0]
-        vm.noteAnimation(item)
-        vm.notes.push({
-          position: item,
-          time: Date.now(),
-        })
+        vm.recordNote(e.which)
       }
+    }
+
+    vm.recordNote = which => {
+      const item = vm.legalKeys.filter(x => x.which === which)[0]
+      vm.noteAnimation(item)
+      vm.notes.push({
+        position: item,
+        time: Date.now(),
+      })
     }
 
     vm.startListening = () => {
       vm.start = true
-      $scope.audioPlayer[0].play();
+      if ($scope.audioPlayer[0].src) {
+        $scope.audioPlayer[0].play();
+      }
       vm.startTime = Date.now()
     }
 
     vm.stopListener = () => {
       vm.start = false
-      $scope.audioPlayer[0].pause();
+      if ($scope.audioPlayer[0].src) {
+        $scope.audioPlayer[0].pause();
+      }
       vm.convertNotes(vm.notes)
       vm.startTime = null
-      songShell._beatsPerMinute = vm.bpm
-      songShell._notes = vm.notes
-      vm.notesJson = JSON.stringify(songShell)
+      vm.beatfile._beatsPerMinute = vm.bpm
+      vm.combineNotes(vm.notes)
+      vm.notesJson = JSON.stringify(vm.beatfile)
+    }
+
+    vm.combineNotes = notes => {
+      notes.forEach(note => vm.beatfile._notes.push(note))
       vm.notes = []
+      vm.beatfile._notes.sort((a, b) => a._time - b._time)
+      vm.beatfile._notes.forEach(note => {
+        const results = vm.beatfile._notes.filter(n => n._time === note._time && n._lineIndex === note._lineIndex && n._lineLayer === note._lineLayer)
+        if (results.length > 1) {
+          // todo: remove all results except one
+        }
+      })
     }
 
     vm.noteAnimation = item => {
@@ -118,6 +139,11 @@ app.controller('MainController', [
       vm.audioSrcName = name
       $scope.$digest()
     };
+
+    $scope.onBeatfileChange = json => {
+      vm.beatfile = new BeatSong(json)
+      $scope.$digest()
+    };
   }
 ])
 
@@ -143,6 +169,23 @@ angular.module('bstm').directive('bstmAudioPlayer', [
       restrict: 'A',
       link: ($scope, element, attrs) => {
         $scope.audioPlayer = element
+      }
+    };
+  }
+]);
+
+angular.module('bstm').directive('bstmBeatfile', [
+  '$http',
+  function ($http) {
+    return {
+      restrict: 'A',
+      link: ($scope, element, attrs) => {
+        element.on('change', function () {
+          if (this.files[0]) {
+            const file = URL.createObjectURL(this.files[0]);
+            $http.get(file).then(response => $scope.onBeatfileChange(response.data))
+          }
+        })
       }
     };
   }
