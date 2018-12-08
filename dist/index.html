@@ -9,13 +9,41 @@
 <body ng-controller="MainController as vm" ng-keypress="vm.onKeypress($event)">
   <div class="container">
     <h1 class="h24 bm-16">Beat Saber Tap Maker</h1>
-    <button ng-click="vm.startListening()">Start</button>
-    <button ng-click="vm.stopListener()">Stop</button>
-    <input type="number" ng-model="vm.bpm">
-    <input ng-model="vm.audio" bstm-audio="" type="file" accept="audio/*">
-    <audio bstm-audio-player=""></audio>
-    <div>
-      <textarea ng-model="vm.notesJson"></textarea>
+
+    <div class="bm-16 flex-row">
+      <div class="flex-col-6">
+        <input class="form-control" type="number" ng-model="vm.bpm">
+      </div>
+      <div class="flex-col-6">
+        <select class="form-control" placeholder="Quantize to" ng-model="vm.precision" ng-options="option.value as option.label for option in vm.precisions"></select>
+      </div>
+    </div>
+
+    <div class="bm-16">
+      <input id="audio-input" ng-model="vm.audio" bstm-audio="" type="file" accept="audio/*">
+      <label for="audio-input" ng-bind="vm.audioSrcName"></label>
+      <audio bstm-audio-player=""></audio>
+    </div>
+
+    <div class="bm-16">
+      <button ng-click="vm.startListening()" class="btn btn-blue">Start</button>
+      <button ng-click="vm.stopListener()" class="btn btn-red">Stop</button>
+    </div>
+
+    <div class="bm-16" ng-if="vm.start">
+      <span ng-bind="vm.notes.length"></span> total notes recorded
+    </div>
+
+    <div class="bm-16 flex-row flex-wrap" ng-if="vm.start">
+      <div class="flex-col-3" ng-repeat="item in vm.legalKeys">
+        <div class="note-indicator" ng-class="item.css">
+          <span ng-bind="item.key"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bm-16">
+      <textarea class="form-control" ng-model="vm.notesJson"></textarea>
     </div>
   </div>
 </body>
