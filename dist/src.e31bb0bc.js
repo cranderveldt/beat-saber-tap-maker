@@ -36472,6 +36472,7 @@ app.controller('MainController', ['$scope', '$q', '$timeout', function ($scope, 
   vm.audioSrcName = 'Choose a Song';
   vm.beatfileName = 'Choose a Beatfile';
   vm.start = false;
+  vm.quantize = true;
   vm.bpm = 152;
   vm.precision = .25;
   vm.precisions = [{
@@ -36647,21 +36648,27 @@ app.controller('MainController', ['$scope', '$q', '$timeout', function ($scope, 
     var millisecondsBetweenBeats = Math.round(60000 / vm.bpm);
     var millisecondsBetweenQuantums = Math.round(60000 * vm.precision / vm.bpm);
     vm.notes = notes.map(function (note, index) {
+      var newNote = new _note.BeatNote();
       var time = note.time - vm.startTime;
-      var mod = note.time % millisecondsBetweenQuantums;
+      var beat = Math.floor(time / millisecondsBetweenBeats);
+      var part = time % millisecondsBetweenBeats / millisecondsBetweenBeats;
+      newNote._time = beat + part;
 
-      if (mod !== 0) {
-        time = time - mod;
+      if (vm.quantize) {
+        var mod = note.time % millisecondsBetweenQuantums;
 
-        if (mod > millisecondsBetweenQuantums / 2) {
-          time = time + millisecondsBetweenQuantums;
+        if (mod !== 0) {
+          time = time - mod;
+
+          if (mod > millisecondsBetweenQuantums / 2) {
+            time = time + millisecondsBetweenQuantums;
+          }
         }
+
+        part = Math.floor(time % millisecondsBetweenBeats / millisecondsBetweenQuantums);
+        newNote._time = beat + part * vm.precision;
       }
 
-      var beat = Math.floor(time / millisecondsBetweenBeats);
-      var part = Math.floor(time % millisecondsBetweenBeats / millisecondsBetweenQuantums);
-      var newNote = new _note.BeatNote();
-      newNote._time = beat + part * vm.precision;
       newNote._type = note.position.x > 1 ? 1 : 0;
       newNote._lineIndex = note.position.x;
       newNote._lineLayer = note.position.y;
@@ -36672,11 +36679,13 @@ app.controller('MainController', ['$scope', '$q', '$timeout', function ($scope, 
   $scope.onAudioChange = function (src, name) {
     $scope.audioPlayer[0].src = src;
     vm.audioSrcName = name;
+    vm.audioLoaded = true;
     $scope.$digest();
   };
 
   $scope.onBeatfileChange = function (json) {
     vm.beatfile = new _song.BeatSong(json);
+    vm.beatfileLoaded = true;
     $scope.$digest();
   };
 }]);

@@ -117,6 +117,13 @@ body {
 .btn-red {
   background: #ad1414; }
 
+.btn-gray {
+  background: gray; }
+
+.btn-block {
+  width: 100%;
+  display: block; }
+
 .form-control {
   padding: 9px;
   background: white;
@@ -129,6 +136,9 @@ body {
 select.form-control {
   -webkit-appearance: none;
   position: relative; }
+  select.form-control:disabled {
+    background: #ddd;
+    color: #aaa; }
 
 input[type=file] {
   width: 0.1px;
@@ -142,13 +152,17 @@ input[type=file] {
     border-radius: 4px;
     cursor: pointer;
     font-size: 18px;
+    line-height: 1.2;
     font-weight: 700;
     color: white;
-    background-color: black;
-    display: inline-block; }
+    background: gray;
+    display: block;
+    text-align: center; }
+    input[type=file] + label.loaded {
+      background: #1445ad; }
   input[type=file]:focus + label,
   input[type=file] + label:hover {
-    background-color: gray; }
+    opacity: .8; }
 
 .flex-row {
   display: flex;
@@ -160,6 +174,9 @@ input[type=file] {
 
 .flex-col-6 {
   width: 50%; }
+
+.flex-col-4 {
+  width: 33.3333333%; }
 
 .flex-col-3 {
   width: 25%; }

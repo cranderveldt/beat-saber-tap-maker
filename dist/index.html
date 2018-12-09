@@ -11,29 +11,36 @@
     <h1 class="h24 bm-16">Beat Saber Tap Maker</h1>
 
     <div class="bm-16 flex-row">
-      <div class="flex-col-6">
+      <div class="flex-col-4">
         <input class="form-control" type="number" ng-model="vm.bpm">
       </div>
-      <div class="flex-col-6">
-        <select class="form-control" placeholder="Quantize to" ng-model="vm.precision" ng-options="option.value as option.label for option in vm.precisions"></select>
+      <div class="flex-col-4">
+        <button ng-click="vm.quantize = !vm.quantize" class="btn btn-block" ng-class="vm.quantize ? 'btn-blue' : 'btn-gray'">Quantizing <span ng-bind="vm.quantize ? 'On' : 'Off'"></span></button>
+      </div>
+      <div class="flex-col-4">
+        <select class="form-control" ng-disabled="!vm.quantize" placeholder="Quantize to" ng-model="vm.precision" ng-options="option.value as option.label for option in vm.precisions"></select>
       </div>
     </div>
 
     <div class="bm-16 flex-row">
       <div class="flex-col-6">
         <input id="audio-input" bstm-audio="" type="file" accept="audio/*">
-        <label for="audio-input" ng-bind="vm.audioSrcName"></label>
+        <label for="audio-input" ng-bind="vm.audioSrcName" ng-class="vm.audioLoaded ? 'loaded' : ''"></label>
         <audio bstm-audio-player=""></audio>
       </div>
       <div class="flex-col-6">
         <input id="beatfile-input" bstm-beatfile="" type="file" accept="application/json">
-        <label for="beatfile-input" ng-bind="vm.beatfileName"></label>
+        <label for="beatfile-input" ng-bind="vm.beatfileName" ng-class="vm.beatfileLoaded ? 'loaded' : ''"></label>
       </div>
     </div>
 
-    <div class="bm-16">
-      <button ng-click="vm.startListening()" class="btn btn-blue">Start</button>
-      <button ng-click="vm.stopListener()" class="btn btn-red">Stop</button>
+    <div class="bm-16 flex-row">
+      <div class="flex-col-6">
+        <button ng-click="vm.startListening()" class="btn btn-blue btn-block">Start</button>
+      </div>
+      <div class="flex-col-6">
+        <button ng-click="vm.stopListener()" class="btn btn-red btn-block">Stop</button>
+      </div>
     </div>
 
     <div class="bm-16" ng-if="vm.start">
